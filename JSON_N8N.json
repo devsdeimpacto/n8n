@@ -1,0 +1,1391 @@
+{
+  "name": "Deu Ruim Aqui",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5e2e8442-f4cf-466c-87c9-c3a14df4c782",
+              "name": "location.timestamp",
+              "value": "={{ $json.messages[0].timestamp }}",
+              "type": "string"
+            },
+            {
+              "id": "ace4eea3-7162-40c5-82b1-8f0255b30e21",
+              "name": "location.latitude",
+              "value": "={{ $json.messages[0].location.latitude }}",
+              "type": "number"
+            },
+            {
+              "id": "5a24389f-9be5-4470-99a4-a8b4fc690e1f",
+              "name": "location.longitude",
+              "value": "={{ $json.messages[0].location.longitude }}",
+              "type": "number"
+            },
+            {
+              "id": "ffb2cea1-66cd-4f23-8172-9dbb7b3c5bcb",
+              "name": "contact.name",
+              "value": "={{ $json.contacts[0].profile.name }}",
+              "type": "string"
+            },
+            {
+              "id": "e7364730-a955-4df8-b4bd-d8578eb8ae66",
+              "name": "contact.phone_number_id",
+              "value": "={{ $json.metadata.phone_number_id }}",
+              "type": "string"
+            },
+            {
+              "id": "cbc17449-8894-44e3-8e4b-75444b9135f1",
+              "name": "contact.display_phone_number",
+              "value": "={{ $json.metadata.display_phone_number }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2560,
+        4672
+      ],
+      "id": "01f59b1a-f1fc-4b47-843b-48fe00179685",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "da12a200-fae4-45d8-ae8f-0bde65d66f07",
+                    "leftValue": "={{ $json.messages[0].image }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Imagem"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5e62c6c9-1d9a-4ddb-a731-211be4a68846",
+                    "leftValue": "={{ $json.messages[0].location }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Location"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "812889e7-a9d4-456c-8cbe-04aee1995d9b",
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Texto"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -2848,
+        4848
+      ],
+      "id": "9f18375e-0580-44a3-a4ac-c7cb4a717635",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=770722559467943",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "=Sua localização é:\n\nLatitude: {{ $json.location.latitude }}\nLongitude: {{ $json.location.longitude }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -2272,
+        4672
+      ],
+      "id": "f1db87c0-4eb0-4162-8de5-510f9b8ace6e",
+      "name": "Send message",
+      "webhookId": "d6f60883-fc61-49c8-b0b5-b4dc22e034a7",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZkvwaLZEJ7GzBFKn",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "text": "Você é um assistente de análise ambiental.\nSua função é examinar uma imagem ou descrição enviada pela população e verificar se há um problema de descarte irregular de lixo.\n\nSe não houver problema ambiental claro, retorne apenas:\n\n{ \"problema_identificado\": false }\n\nSe houver problema ambiental, retorne somente um JSON válido e bem formatado conforme o modelo abaixo:\n\n{\n  \"problema_identificado\": true,\n  \"tipo_problema\": \"lixo_doméstico\",\n  \"local_aparente\": \"beira de rua com bueiro próximo a área residencial e pequeno rio\",\n  \"tipo_despejo\": [\"organico\", \"reciclavel\"],\n  \"gravidade\": \"média\",\n  \"risco_saude\": true,\n  \"impacto_meio_ambiente\": \"contaminação do solo e risco de poluição do rio\",\n  \"populacao_prejudicada\": \"moradores próximos e pedestres que transitam pelo local\",\n  \"descricao_resumida\": \"Lixo doméstico acumulado próximo a bueiro e rio, com risco de obstrução da drenagem e proliferação de insetos.\",\n  \"acoes_recomendadas\": [\"coleta e limpeza imediata\", \"educação ambiental\", \"fiscalização do descarte irregular\"]\n  \"confianca_analise\": 0.91\n}\n\nRegras:\nRetorne somente o JSON, sem texto adicional.\nSe algum dado for incerto, use \"indefinido\".\nA descrição (descricao_resumida) deve ter no máximo 300 caracteres.\nO campo \"tipo_problema\" deve ser um dos seguintes:\n[\"lixo_doméstico\", \"entulho\", \"escoamento_irregular\", \"lixo_em_água\", \"esgoto_a_ceu_aberto\", \"poluicao_visual\", \"outro\"].\n\"gravidade\" pode ser \"baixa\", \"média\" ou \"alta\".\n\"risco_saude\" deve ser true ou false.\n\"confianca_analise\" deve ser um número entre 0.0 e 1.0, representando a confiança na interpretação.",
+        "inputType": "base64",
+        "simplify": false,
+        "options": {
+          "maxTokens": 1024
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        -1824,
+        4864
+      ],
+      "id": "f8f00bd5-6489-4b5e-9754-5c7167b3cbb7",
+      "name": "Analyze image",
+      "credentials": {
+        "openAiApi": {
+          "id": "dF6HfLuMAA8C0g3T",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5b884b32-442c-4d46-8dfd-4b9b425aed6a",
+              "name": "output[0].content[0].text",
+              "value": "={{ $json.output[0].content[0].text }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1248,
+        4768
+      ],
+      "id": "733bea64-08fe-45b3-aae4-4f8146c0e1cc",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=770722559467943",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $('Analyze image').item.json.output[0].content[0].text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -1024,
+        4768
+      ],
+      "id": "d2c3a50c-30c2-4cd2-990e-8cac32970fad",
+      "name": "Send message1",
+      "webhookId": "331b9de4-535f-496b-8381-45b077c49312",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZkvwaLZEJ7GzBFKn",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "=Analise o texto para identificar se a imagem é relevante ou não.\n\n{{ $json.output[0].content[0].text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Relevante"
+            },
+            {
+              "category": "Irrelevante"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -1600,
+        4768
+      ],
+      "id": "3093797d-f84b-4c6a-ab89-b49857e22af3",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1536,
+        4992
+      ],
+      "id": "d0f086f5-76bd-4339-aab6-0898468e6950",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "dF6HfLuMAA8C0g3T",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=770722559467943",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "=Imagem irrelevante",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -1248,
+        4960
+      ],
+      "id": "03c51bf8-194b-43eb-8deb-cb814966f918",
+      "name": "Send message2",
+      "webhookId": "331b9de4-535f-496b-8381-45b077c49312",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZkvwaLZEJ7GzBFKn",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=770722559467943",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "=Aguarde. Estamos validando sua ocorrênia.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -2560,
+        4864
+      ],
+      "id": "b06f7eb5-c51d-477c-a143-cb41b80fd854",
+      "name": "Send message3",
+      "webhookId": "331b9de4-535f-496b-8381-45b077c49312",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZkvwaLZEJ7GzBFKn",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2048,
+        4864
+      ],
+      "id": "339a5a7e-7f90-4b05-96d1-8eeaa800bc24",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "kVxDZnYwqhj7HQxq",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v19.0/{{ $('WhatsApp Trigger').item.json.messages[0].image.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2272,
+        4864
+      ],
+      "id": "94b1cbb9-f0f3-4ad0-a26a-a2473eea291b",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "kVxDZnYwqhj7HQxq",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um assistente de cadastro de clientes. CONTEXTO DA SESSÃO ANTERIOR: {{ $json.session_data_text }}. Continue de onde parou. Colete as seguintes informações uma por vez de forma conversacional: 1) Tipo de pessoa (Física ou Jurídica), 2) Documento (CPF ou CNPJ), 3) Email, 4) Quantidade de itens, 5) Foto (confirme quando o cliente enviar), 6) Endereço de coleta. Seja educado e valide cada resposta. IMPORTANTE: Enquanto estiver coletando dados, responda normalmente em texto. SOMENTE quando tiver TODAS as 6 informações coletadas, retorne um JSON válido no formato: {\"tipo\": \"fisica ou juridica\", \"documento\": \"CPF ou CNPJ\", \"email\": \"email\", \"quantidade_itens\": numero, \"foto_recebida\": true/false, \"endereco_coleta\": \"endereço completo\"}",
+        "options": {}
+      },
+      "id": "738f003b-7ddb-4e41-9785-7e61e94411d0",
+      "name": "Cadastro Cliente Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -2624,
+        5360
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "fb53f538-cbd2-4129-a89b-e8b7b99b0ead",
+      "name": "OpenAI Chat Model - Cadastro",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -2624,
+        5552
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "dF6HfLuMAA8C0g3T",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "name",
+          "value": "customers"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "tipo": "={{ $json.output.tipo }}",
+            "documento": "={{ $json.output.documento }}",
+            "email": "={{ $json.output.email }}",
+            "quantidade_itens": "={{ $json.output.quantidade_itens }}",
+            "endereco_coleta": "={{ $json.output.endereco_coleta }}",
+            "whatsapp_id": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+            "created_at": "={{ $now }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "2bf4aff8-1e8e-4100-9bd7-06c83922f416",
+      "name": "Save Customer Data",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1824,
+        5456
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "Su0AkFXrgwNVBqag",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=770722559467943",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "Cadastro realizado com sucesso! ✅\n\nObrigado por fornecer suas informações. Em breve entraremos em contato para agendar a coleta.",
+        "additionalFields": {}
+      },
+      "id": "42c38729-3140-40af-940a-260df3b65e3a",
+      "name": "Send Confirmation",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -1248,
+        5504
+      ],
+      "webhookId": "6cb98d8c-537f-4301-8c80-9ea17b39c1ea",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZkvwaLZEJ7GzBFKn",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.output.isComplete }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8d954815-922d-46bf-a735-2b977faeecd7",
+      "name": "Check if Data Complete",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2048,
+        5456
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.item.json.output;\n\ntry {\n  const parsed = JSON.parse(output);\n  return { json: { output: parsed, isComplete: true } };\n} catch (e) {\n  return { json: { output: output, isComplete: false } };\n}"
+      },
+      "id": "e4ea4cbc-a5c8-47f5-9b24-9255e1dd3e25",
+      "name": "Parse JSON Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2272,
+        5360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "770722559467943",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "c3ec6092-b40e-489b-9f45-6014b7b2ec0c",
+      "name": "Send Agent Response",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -1536,
+        5216
+      ],
+      "webhookId": "dbc28527-ff76-4739-be12-a2ed3aa8d398",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZkvwaLZEJ7GzBFKn",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "user_session",
+          "mode": "list",
+          "cachedResultName": "user_session"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "user_id": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+            "tipo": "fisica",
+            "status": "completed",
+            "documento": "103.379.279-95",
+            "email": "teste@teste.co",
+            "nome": "Paulo",
+            "endereco": "HIPE Innovation Center, Av. Pres. Getúlio Vargas, 557",
+            "foto": "https://imagem.aleatória"
+          },
+          "matchingColumns": [
+            "user_id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tipo",
+              "displayName": "tipo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "documento",
+              "displayName": "documento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "endereco",
+              "displayName": "endereco",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "foto",
+              "displayName": "foto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false,
+              "removed": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "c36240ed-9f72-46c5-b7d7-241082918a0d",
+      "name": "Update Session",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1248,
+        5248
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "Su0AkFXrgwNVBqag",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE sessions SET status = 'completed', updated_at = CURRENT_TIMESTAMP WHERE user_id = '={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}' RETURNING *;",
+        "options": {}
+      },
+      "id": "024ded76-96f2-443a-ba83-262e239e41b0",
+      "name": "Mark Session Complete",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1536,
+        5456
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "Su0AkFXrgwNVBqag",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b2d94425-6f62-4d87-834e-99c02af0f8f6",
+              "name": "session_data_text",
+              "value": "={{ $json.session_data_text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3072,
+        4864
+      ],
+      "id": "eb5394fa-dc28-45f4-b62d-ef4d52ca7085",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "user_session",
+          "mode": "list",
+          "cachedResultName": "user_session"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "user_id",
+              "value": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8440ce76-f84a-46b1-9940-5eb01038e885",
+      "name": "Load Session",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -3296,
+        4864
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "Su0AkFXrgwNVBqag",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "CREATE TABLE IF NOT EXISTS customers (\n  id SERIAL PRIMARY KEY,\n  tipo VARCHAR(20) NOT NULL,\n  documento VARCHAR(20) NOT NULL,\n  email VARCHAR(255) NOT NULL,\n  quantidade_itens INTEGER,\n  endereco_coleta TEXT,\n  whatsapp_id VARCHAR(50),\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE TABLE IF NOT EXISTS customer_chat_history (\n  id SERIAL PRIMARY KEY,\n  session_id VARCHAR(255) NOT NULL,\n  message TEXT NOT NULL,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE TABLE IF NOT EXISTS user_session (\n  id SERIAL PRIMARY KEY,\n  user_id VARCHAR(255) UNIQUE NOT NULL,\n  tipo TEXT,\n  documento TEXT,\n  email TEXT,\n  nome TEXT,\n  endereco TEXT,\n  foto TEXT,\n  status VARCHAR(20) DEFAULT 'active',\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);",
+        "options": {}
+      },
+      "id": "732ca496-902c-4fd7-a3dd-675475eb849e",
+      "name": "Create Tables",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -3520,
+        4864
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "Su0AkFXrgwNVBqag",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -4048,
+        6048
+      ],
+      "id": "b2eb1850-d75d-4bf5-bbf5-16a172a6c109",
+      "name": "WhatsApp Trigger",
+      "webhookId": "30c23fe0-7da0-47c2-9327-dd673daeebf1",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "6QhI9kvJp7T9k1Sc",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=770722559467943",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "✅ Recebemos sua solicitação! Nosso sistema identificou o tipo de material e já definiu o melhor destino para a coleta ♻️  Aguarde só um instante, estamos processando as informações...",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -3264,
+        6048
+      ],
+      "id": "392a42fe-540e-41f9-acde-683d450c058c",
+      "name": "Feedback Usuário",
+      "webhookId": "456b1c09-5d8b-4526-ac4e-39dd34b780b2",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZkvwaLZEJ7GzBFKn",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "id": "ecac0a4a-c6f0-40d0-bc03-783ffb7c921f",
+      "name": "OpenAI Chat Model - Cadastro1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -3008,
+        6224
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "dF6HfLuMAA8C0g3T",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "phoneNumberId": "=770722559467943",
+        "recipientPhoneNumber": "={{ $json.contacts[0].wa_id }}",
+        "message": "👋 Olá! Eu sou o assistente +Coleta, e estou aqui para te ajudar a dar o destino certo aos seus recicláveis ♻️\n\n👉 Clique no link abaixo para enviar suas informações:",
+        "responseType": "customForm",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Nome Completo",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "CPF",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Foto",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Quantidade de Itens",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "CEP",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Endereço",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -3760,
+        6048
+      ],
+      "id": "aeb64a63-cc49-4243-b675-041c937d631f",
+      "name": "Input",
+      "webhookId": "12d08b67-909a-4fe0-967f-72fbd29e2d9a",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZkvwaLZEJ7GzBFKn",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://backend-production-43d8c.up.railway.app/solicitacoes/",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"documento\": \"123.456.789-00\",\n  \"email\": \"cliente@exemplo.com\",\n  \"endereco\": \"Rua Exemplo, 123 - Bairro - Cidade/UF - CEP\",\n  \"foto_url\": \"https://storage.exemplo.com/fotos/12345.jpg\",\n  \"nome_solicitante\": \"João Silva\",\n  \"quantidade_itens\": 5,\n  \"tipo_pessoa\": \"PF\",\n  \"whatsapp\": \"11987654321\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -2400,
+        6048
+      ],
+      "id": "a8947c19-d476-44d4-9aaa-00997cd4edc5",
+      "name": "Send to Backend"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=770722559467943",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -2656,
+        6048
+      ],
+      "id": "46eaf496-efaa-42ed-a3a1-0c4331cb85dc",
+      "name": "Feddback Coleta",
+      "webhookId": "456b1c09-5d8b-4526-ac4e-39dd34b780b2",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZkvwaLZEJ7GzBFKn",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Analise de Imagem').item.json.output[0].content[0].text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Utilizar as informações coletadas para formatar a resposta ao usuário. \n\nSe o item for reciclável, responda apenas com a resposta do usuário no formato abaixo. Para reciclagem especial como eletrônicos sugir um ponto de coleta especial:\n\n\"🚛 O material informado foi <<MATERIAL DETECTADO>> <<ADICIONAR DESCRIÇÃO SOBRE O ITEM OU ITENS DO USUÁRIO>>.  \n\nUma empresa parceira de reciclagem foi acionada para coleta:  \n\n🧑‍🔧 Coletor: JOAQUIM BRANDÃO (EcoRota) \n🗓️ Agendado para:  Quarta-feira 5 de novembro de 2025.\n\nVocê receberá uma mensagem de confirmação assim que o material for recolhido. Obrigado por contribuir com o meio ambiente 🌎\"\n\nSe o item não for reciclável, responda educadamente ao usuário porque ele não é reciclável e qual o destino correto para ele."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -3008,
+        6048
+      ],
+      "id": "df6642d6-5ce2-476f-a960-c100d53a8ef4",
+      "name": "Tratamento de Coleta"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "text": "Você é um assistente de análise de recicláveis.\n\nSua função é examinar uma imagem e descrever o tipo de reciclável que estamos trabalhando.\n\nSe o items não for de um dos tipos de reciclável (aço, alumínio, cobre, eletrônico, papel, plástico e vidro), retorne apenas:\n\n{ \"reciclavel\": false }\n\nSe o items for reciclável em alguma das categorias, retorne somente um JSON válido e bem formatado conforme o modelo abaixo:\n\n{\n  \"descricao_resumida\": descrição do item analisado  \n  \"tipo_material\": aco || aluminio || cobre || eletronico || papel || plastico || vidro\n  \"valor_agregado\": baixo || medio || alto\n  \"confianca_analise\": 0.91\n}\n\nRegras:\nRetorne somente o JSON, sem texto adicional.\nSe algum dado for incerto, use \"indefinido\".\nA descrição (descricao_resumida) deve ter no máximo 300 caracteres.\nO campo \"tipo_material\" deve ser um dos seguintes:aço, alumínio, cobre, eletrônico, papel, plástico e vidro.\n\"valor_agregado\" pode ser \"baixa\", \"média\" ou \"alta\".\n\"confianca_analise\" deve ser um número entre 0.0 e 1.0, representando a confiança na interpretação.",
+        "inputType": "base64",
+        "binaryPropertyName": "Foto",
+        "simplify": false,
+        "options": {
+          "maxTokens": 1024
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        -3520,
+        6048
+      ],
+      "id": "9f747b02-49d3-4fdf-8caf-f74f58973ab6",
+      "name": "Analise de Imagem",
+      "credentials": {
+        "openAiApi": {
+          "id": "dF6HfLuMAA8C0g3T",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cadastro Cliente Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model - Cadastro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Cadastro Cliente Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Customer Data": {
+      "main": [
+        [
+          {
+            "node": "Mark Session Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cadastro Cliente Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse JSON Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Data Complete": {
+      "main": [
+        [
+          {
+            "node": "Save Customer Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse JSON Response": {
+      "main": [
+        [
+          {
+            "node": "Check if Data Complete",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Agent Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Session Complete": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Agent Response": {
+      "main": [
+        [
+          {
+            "node": "Update Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Session": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Tables": {
+      "main": [
+        [
+          {
+            "node": "Load Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model - Cadastro1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Tratamento de Coleta",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Feedback Usuário": {
+      "main": [
+        [
+          {
+            "node": "Tratamento de Coleta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "Analise de Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Feddback Coleta": {
+      "main": [
+        [
+          {
+            "node": "Send to Backend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tratamento de Coleta": {
+      "main": [
+        [
+          {
+            "node": "Feddback Coleta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analise de Imagem": {
+      "main": [
+        [
+          {
+            "node": "Feedback Usuário",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "12c29ead-fa08-4cd9-a23d-6eabf4701e5e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4c12d7692dc1d11e2ac7536ad5c1336260f51fdb61b7f74790e6f17d1b07661e"
+  },
+  "id": "loFSc046NMxGkBIE",
+  "tags": []
+}

@@ -1,7 +1,7 @@
-# Fluxo n8n — Deu Ruim Aqui
+# Fluxo n8n — Mais Coleta
 
 ## Visão geral
-Este workflow orquestra o atendimento “Deu Ruim Aqui” dentro do n8n para receber mensagens via WhatsApp, classificar conteúdos (texto, localização e imagem), usar modelos da OpenAI para entendimento e resposta, persistir o andamento da conversa em Postgres e acionar um backend externo para registrar solicitações de coleta.
+Este workflow orquestra o atendimento “Mais Coleta” dentro do n8n para receber mensagens via WhatsApp, classificar conteúdos (texto, localização e imagem), usar modelos da OpenAI para entendimento e resposta, persistir o andamento da conversa em Postgres e acionar um backend externo para registrar solicitações de coleta.
 
 - Entrada única pelo `WhatsApp Trigger` (Cloud API do WhatsApp Business).
 - LLMs da coleção `@n8n/n8n-nodes-langchain` para visão computacional, classificação e agente conversacional.
@@ -15,14 +15,14 @@ Este workflow orquestra o atendimento “Deu Ruim Aqui” dentro do n8n para rec
 - Endpoint HTTP disponível para receber o payload final da coleta (`Send to Backend`).
 
 ## Mapa rápido dos nós
-| Bloco | Nós principais | Papel no fluxo |
-| --- | --- | --- |
-| Disparo & contexto | `WhatsApp Trigger`, `Input`, `Load Session`, `Edit Fields2`, `Switch` | Captura mensagens, envia formulário interativo e decide o tipo de conteúdo com base no payload. |
-| Localização | `Edit Fields`, `Send message` | Normaliza latitude/longitude recebidas e devolve confirmação ao usuário. |
-| Imagem | `Send message3`, `HTTP Request`, `HTTP Request1`, `Analise de Imagem`, `OpenAI Chat Model`, `Text Classifier`, `Edit Fields1`, `Send message1`, `Send message2` | Faz download da mídia, classifica relevância, descreve recicláveis e informa o status ao usuário. |
-| Feedback pós-análise | `Feedback Usuário`, `OpenAI Chat Model - Cadastro1`, `Tratamento de Coleta`, `Feddback Coleta`, `Send to Backend` | Gera mensagem rica sobre coleta e registra solicitação no backend. |
+| Bloco                   | Nós principais                                                                                                                                                                                                         | Papel no fluxo                                                                                                          |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Disparo & contexto      | `WhatsApp Trigger`, `Input`, `Load Session`, `Edit Fields2`, `Switch`                                                                                                                                                  | Captura mensagens, envia formulário interativo e decide o tipo de conteúdo com base no payload.                         |
+| Localização             | `Edit Fields`, `Send message`                                                                                                                                                                                          | Normaliza latitude/longitude recebidas e devolve confirmação ao usuário.                                                |
+| Imagem                  | `Send message3`, `HTTP Request`, `HTTP Request1`, `Analise de Imagem`, `OpenAI Chat Model`, `Text Classifier`, `Edit Fields1`, `Send message1`, `Send message2`                                                        | Faz download da mídia, classifica relevância, descreve recicláveis e informa o status ao usuário.                       |
+| Feedback pós-análise    | `Feedback Usuário`, `OpenAI Chat Model - Cadastro1`, `Tratamento de Coleta`, `Feddback Coleta`, `Send to Backend`                                                                                                      | Gera mensagem rica sobre coleta e registra solicitação no backend.                                                      |
 | Cadastro conversacional | `Cadastro Cliente Agent`, `OpenAI Chat Model - Cadastro`, `Parse JSON Response`, `Check if Data Complete`, `Send Agent Response`, `Save Customer Data`, `Mark Session Complete`, `Send Confirmation`, `Update Session` | Guia o usuário até capturar todos os campos obrigatórios, envia respostas intermediárias e consolida dados no Postgres. |
-| Infraestrutura | `Create Tables` | Cria tabelas de apoio (`customers`, `customer_chat_history`, `user_session`). Execute manualmente ao importar o fluxo. |
+| Infraestrutura          | `Create Tables`                                                                                                                                                                                                        | Cria tabelas de apoio (`customers`, `customer_chat_history`, `user_session`). Execute manualmente ao importar o fluxo.  |
 
 ## Fluxo detalhado
 ### 1. Disparo pelo WhatsApp e captura inicial
