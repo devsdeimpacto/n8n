@@ -128,3 +128,11 @@ flowchart LR
 1. Introduzir variáveis ambientais (`{{$env}}`) para URLs, tokens e IDs, facilitando a promoção entre ambientes.
 2. Registrar histórico de conversa em `customer_chat_history` (já criado pelo script) alimentando o agente com o contéudo real.
 3. Implementar retries e tratamento de erros explícitos nos nós de HTTP e Postgres para maior resiliência em produção.
+
+## 👩‍💻 Equipe
+
+| Nome             | Função             | Email                      |
+| ---------------- | ------------------ | -------------------------- |
+| Lucas Messias    | Frontend Developer | lucasmessias98@hotmail.com |
+| Vinicius Brunoni | Backend Developer  | viniciusbrunoni@me.com     |
+| Paulo Jalowyj    | UX/UI Designer     | pgm.jalowyj@gmail.com      |
